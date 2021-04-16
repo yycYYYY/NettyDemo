@@ -15,9 +15,15 @@ package com.netty.demo.echo;
  * under the License.
  */
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Handler implementation for the echo server.
@@ -27,8 +33,18 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        ctx.write(msg);
-        System.out.println(msg);
+        ByteBuf buf = Unpooled.buffer(5);
+        PooledByteBufAllocator pooledAllocator = PooledByteBufAllocator.DEFAULT;
+        UnpooledByteBufAllocator unpooledAllocator = UnpooledByteBufAllocator.DEFAULT;
+        unpooledAllocator.buffer();
+        unpooledAllocator.heapBuffer();
+        unpooledAllocator.directBuffer();
+        pooledAllocator.directBuffer();
+        pooledAllocator.directBuffer();
+
+        buf.writeBytes((msg.toString()+"server").getBytes(StandardCharsets.UTF_8));
+        ctx.write(buf);
+        System.out.println("server received:" + buf.toString());
     }
 
     @Override
